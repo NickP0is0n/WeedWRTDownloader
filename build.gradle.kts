@@ -14,6 +14,24 @@ repositories {
 
 dependencies {
     implementation(group = "net.lingala.zip4j", name = "zip4j", version = "2.6.4")
+    implementation(kotlin("stdlib-jdk8"))
+}
+
+val fatJar = task("fatJar", type = Jar::class) {
+    baseName = "${project.name}-fat"
+    manifest {
+        attributes["Implementation-Title"] = "Gradle Jar File Example"
+        attributes["Implementation-Version"] = version
+        attributes["Main-Class"] = "MainKt"
+    }
+    from(configurations.runtimeClasspath.get().map { if (it.isDirectory) it else zipTree(it) })
+    with(tasks.jar.get() as CopySpec)
+}
+
+tasks {
+    "build" {
+        dependsOn(fatJar)
+    }
 }
 
 tasks.withType<KotlinCompile>() {
@@ -22,4 +40,12 @@ tasks.withType<KotlinCompile>() {
 
 application {
     mainClassName = "MainKt"
+}
+val compileKotlin: KotlinCompile by tasks
+compileKotlin.kotlinOptions {
+    jvmTarget = "1.8"
+}
+val compileTestKotlin: KotlinCompile by tasks
+compileTestKotlin.kotlinOptions {
+    jvmTarget = "1.8"
 }
