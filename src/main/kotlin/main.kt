@@ -21,6 +21,9 @@ fun main(args: Array<String>) {
         showHelpMessage()
     }
 
+    println("WeedWRT Downloader v${BuildInfo.version} (${BuildInfo.branch} branch)")
+    println("Created by NickP0is0n (github.com/NickP0is0n)\n")
+
     println("[*] Setting up download sources...")
     val releaseType = checkReleaseType(args[0])
     val version = args[0]
@@ -32,6 +35,7 @@ fun main(args: Array<String>) {
 
     downloadCorePackages()
     downloadBasePackages()
+    downloadLuciPackages()
 }
 
 fun showHelpMessage() {
@@ -60,7 +64,7 @@ fun setDownloadUrl(platform: String, architecture: String) {
 fun downloadCorePackages() {
     val packageListLocalFile = downloadCorePackageList()
 
-    println("[*] Parsing core package list...")
+    println("\n[*] Parsing core package list...")
     val packageParser = PackageParser(packageListLocalFile)
 
     OWRT_CORE_PKG.forEach { packageName ->
@@ -84,7 +88,7 @@ fun downloadCorePackages() {
 fun downloadBasePackages() {
     val packageListLocalFile = downloadBasePackageList()
 
-    println("[*] Parsing base package list...")
+    println("\n[*] Parsing base package list...")
     val packageParser = PackageParser(packageListLocalFile)
 
     OWRT_BASE_PKG.forEach { packageName ->
@@ -105,6 +109,30 @@ fun downloadBasePackages() {
     println("[*] Base packages download complete.")
 }
 
+fun downloadLuciPackages() {
+    val packageListLocalFile = downloadLuciPackageList()
+
+    println("\n[*] Parsing LuCI package list...")
+    val packageParser = PackageParser(packageListLocalFile)
+
+    OWRT_LUCI_PKG.forEach { packageName ->
+        val currentPackage = packageParser.packageList.find { it.name == packageName }
+        if (currentPackage == null) {
+            println("[*] Package $packageName not found, skipped.")
+        }
+        else {
+            println("[*] Downloading package ${currentPackage.name} (${currentPackage.filename})...")
+            val packageUrl = URL("$OWRT_LUCIURL/${currentPackage.filename}")
+            val packageLocalFile = File("$TEMP_DIRECTORY/${currentPackage.filename}")
+            packageUrl.openStream().use {
+                Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
+    }
+
+    println("[*] LuCI packages download complete.")
+}
+
 fun downloadCorePackageList(): File {
     println("[*] Downloading core package list...")
     val packageListUrl = URL("$OWRT_COREURL/Packages")
@@ -118,6 +146,16 @@ fun downloadCorePackageList(): File {
 fun downloadBasePackageList(): File {
     println("[*] Downloading base package list...")
     val packageListUrl = URL("$OWRT_BASEURL/Packages")
+    val packageLocalFile = File("$TEMP_DIRECTORY/Package")
+    packageListUrl.openStream().use {
+        Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    }
+    return packageLocalFile
+}
+
+fun downloadLuciPackageList(): File {
+    println("[*] Downloading LuCI package list...")
+    val packageListUrl = URL("$OWRT_LUCIURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
     packageListUrl.openStream().use {
         Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
