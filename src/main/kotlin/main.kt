@@ -1,5 +1,4 @@
 import net.lingala.zip4j.ZipFile
-import net.lingala.zip4j.model.ZipParameters
 import java.io.File
 import java.io.PrintWriter
 import java.net.URL
@@ -182,7 +181,7 @@ fun makeInstallScript() {
         read  -n 1 -p "Press any key to start"
         echo "[*] Unboxing LuCI files to temp directory"
         mkdir -p "/tmp/luci-offline-packages"
-        cp luci-offline/*.ipk "/tmp/luci-offline-packages"
+        cp /luci-offline/*.ipk "/tmp/luci-offline-packages"
         echo "[*] Installing LuCI and dependencies"
         cd "/tmp/luci-offline-packages"
         opkg install *.ipk
