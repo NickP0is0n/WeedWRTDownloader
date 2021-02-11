@@ -1,12 +1,8 @@
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
-import java.math.BigInteger
 
-
-
-
-class PackageParser (val packageFile: File) {
+class PackageParser (packageFile: File) {
     val packageList: List<Package>
 
     init {
