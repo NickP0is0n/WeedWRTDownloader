@@ -64,7 +64,7 @@ fun setDownloadUrl(platform: String, architecture: String) {
 fun downloadCorePackages() {
     val packageListLocalFile = downloadCorePackageList()
 
-    println("\n[*] Parsing core package list...")
+    println("[*] Parsing core package list...")
     val packageParser = PackageParser(packageListLocalFile)
 
     OWRT_CORE_PKG.forEach { packageName ->
@@ -88,7 +88,7 @@ fun downloadCorePackages() {
 fun downloadBasePackages() {
     val packageListLocalFile = downloadBasePackageList()
 
-    println("\n[*] Parsing base package list...")
+    println("[*] Parsing base package list...")
     val packageParser = PackageParser(packageListLocalFile)
 
     OWRT_BASE_PKG.forEach { packageName ->
@@ -112,7 +112,7 @@ fun downloadBasePackages() {
 fun downloadLuciPackages() {
     val packageListLocalFile = downloadLuciPackageList()
 
-    println("\n[*] Parsing LuCI package list...")
+    println("[*] Parsing LuCI package list...")
     val packageParser = PackageParser(packageListLocalFile)
 
     OWRT_LUCI_PKG.forEach { packageName ->
@@ -134,7 +134,7 @@ fun downloadLuciPackages() {
 }
 
 fun downloadCorePackageList(): File {
-    println("[*] Downloading core package list...")
+    println("\n[*] Downloading core package list...")
     val packageListUrl = URL("$OWRT_COREURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
     packageListUrl.openStream().use {
@@ -144,7 +144,7 @@ fun downloadCorePackageList(): File {
 }
 
 fun downloadBasePackageList(): File {
-    println("[*] Downloading base package list...")
+    println("\n[*] Downloading base package list...")
     val packageListUrl = URL("$OWRT_BASEURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
     packageListUrl.openStream().use {
@@ -154,7 +154,7 @@ fun downloadBasePackageList(): File {
 }
 
 fun downloadLuciPackageList(): File {
-    println("[*] Downloading LuCI package list...")
+    println("\n[*] Downloading LuCI package list...")
     val packageListUrl = URL("$OWRT_LUCIURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
     packageListUrl.openStream().use {
