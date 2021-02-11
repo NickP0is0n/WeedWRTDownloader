@@ -1,4 +1,5 @@
 import net.lingala.zip4j.ZipFile
+import net.lingala.zip4j.model.ZipParameters
 import java.io.File
 import java.io.PrintWriter
 import java.net.URL
@@ -42,7 +43,7 @@ fun main(args: Array<String>) {
     packageIntoArchive()
     removeTemporaryFiles()
 
-    println("\n WeedWRT package is created. You can find it in \"output\" folder.")
+    println("\nWeedWRT package is created. You can find it in \"output\" folder.")
     println("To launch script on target machine you need to unbox it and run \"weedwrt.sh\" file.")
 }
 
@@ -193,7 +194,7 @@ fun makeInstallScript() {
         echo "Done"
     """.trimIndent()
 
-    val output = File("$TEMP_DIRECTORY/weedwrt.sh")
+    val output = File("${TEMP_DIRECTORY.absolutePath.removeSuffix("/luci-offline")}/weedwrt.sh")
     output.createNewFile()
 
     PrintWriter(output).use {
@@ -208,12 +209,13 @@ fun packageIntoArchive() {
     outputDirectory.mkdir()
     val outputFile = File("output/weedwrt_generated.zip")
     val zipFile = ZipFile(outputFile)
-    zipFile.addFolder(File("tmp"))
+    zipFile.addFile(File("tmp/weedwrt.sh"))
+    zipFile.addFolder(TEMP_DIRECTORY)
 }
 
 fun removeTemporaryFiles() {
     println("[*] Cleaning up temp files...")
-    TEMP_DIRECTORY.deleteRecursively()
+    File(TEMP_DIRECTORY.absolutePath.removeSuffix("/luci-offline")).deleteRecursively()
 }
 
 
