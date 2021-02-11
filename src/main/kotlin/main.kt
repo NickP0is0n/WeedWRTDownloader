@@ -9,7 +9,7 @@ val OWRT_CORE_PKG = listOf("libiwinfo", "libiwinfo-lua")
 val OWRT_BASE_PKG = listOf("libjson-c2", "liblua", "lua", "libuci-lua", "libubus", "libubus-lua", "uhttpd", "rpcd")
 val OWRT_LUCI_PKG = listOf("luci-base", "liblucihttp", "liblucihttp-lua", "luci-lib-ip", "luci-lib-nixio", "luci-theme-bootstrap", "luci-mod-admin-full", "luci-lib-jsonc", "luci-mod-status", "luci-mod-system", "luci-mod-network")
 
-val TEMP_DIRECTORY = File("/tmp/luci-offline")
+val TEMP_DIRECTORY = File("tmp/luci-offline")
 
 lateinit var OWRT_DIR: String
 lateinit var OWRT_COREURL: String
@@ -30,6 +30,8 @@ fun main(args: Array<String>) {
     println("[*] Creating temp directory...")
     TEMP_DIRECTORY.mkdirs()
 
+    downloadCorePackages()
+    downloadBasePackages()
 }
 
 fun showHelpMessage() {
@@ -50,7 +52,7 @@ fun setOpenWrtDirectory(version: String, releaseType: ReleaseType) {
 }
 
 fun setDownloadUrl(platform: String, architecture: String) {
-    OWRT_COREURL = "$OWRT_URL/$OWRT_DIR/targets/$platform"
+    OWRT_COREURL = "$OWRT_URL/$OWRT_DIR/targets/$platform/packages"
     OWRT_BASEURL = "$OWRT_URL/$OWRT_DIR/packages/$architecture/base"
     OWRT_LUCIURL = "$OWRT_URL/$OWRT_DIR/packages/$architecture/luci"
 }
@@ -61,19 +63,46 @@ fun downloadCorePackages() {
     println("[*] Parsing core package list...")
     val packageParser = PackageParser(packageListLocalFile)
 
-    OWRT_CORE_PKG.forEach {
-        val currentPackage = packageParser.packageList.find { parsedPackage -> parsedPackage.name == it }
+    OWRT_CORE_PKG.forEach { packageName ->
+        val currentPackage = packageParser.packageList.find { it.name == packageName }
         if (currentPackage == null) {
-            println("[*] Package $it not found, skipped.")
+            println("[*] Package $packageName not found, skipped.")
         }
         else {
-            println("[*] Downloading package $it (${currentPackage.filename})...")
+            println("[*] Downloading package ${currentPackage.name} (${currentPackage.filename})...")
             val packageUrl = URL("$OWRT_COREURL/${currentPackage.filename}")
             val packageLocalFile = File("$TEMP_DIRECTORY/${currentPackage.filename}")
+            packageUrl.openStream().use {
+                Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            }
         }
     }
 
-    print("[*] Core packages download complete.")
+    println("[*] Core packages download complete.")
+}
+
+fun downloadBasePackages() {
+    val packageListLocalFile = downloadBasePackageList()
+
+    println("[*] Parsing base package list...")
+    val packageParser = PackageParser(packageListLocalFile)
+
+    OWRT_BASE_PKG.forEach { packageName ->
+        val currentPackage = packageParser.packageList.find { it.name == packageName }
+        if (currentPackage == null) {
+            println("[*] Package $packageName not found, skipped.")
+        }
+        else {
+            println("[*] Downloading package ${currentPackage.name} (${currentPackage.filename})...")
+            val packageUrl = URL("$OWRT_BASEURL/${currentPackage.filename}")
+            val packageLocalFile = File("$TEMP_DIRECTORY/${currentPackage.filename}")
+            packageUrl.openStream().use {
+                Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
+    }
+
+    println("[*] Base packages download complete.")
 }
 
 fun downloadCorePackageList(): File {
@@ -85,4 +114,15 @@ fun downloadCorePackageList(): File {
     }
     return packageLocalFile
 }
+
+fun downloadBasePackageList(): File {
+    println("[*] Downloading base package list...")
+    val packageListUrl = URL("$OWRT_BASEURL/Packages")
+    val packageLocalFile = File("$TEMP_DIRECTORY/Package")
+    packageListUrl.openStream().use {
+        Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    }
+    return packageLocalFile
+}
+
 
