@@ -84,9 +84,7 @@ fun downloadCorePackages() {
             println("[*] Downloading package ${currentPackage.name} (${currentPackage.filename})...")
             val packageUrl = URL("$OWRT_COREURL/${currentPackage.filename}")
             val packageLocalFile = File("$TEMP_DIRECTORY/${currentPackage.filename}")
-            packageUrl.openStream().use {
-                Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
+            downloadFile(packageUrl, packageLocalFile)
         }
     }
 
@@ -108,9 +106,7 @@ fun downloadBasePackages() {
             println("[*] Downloading package ${currentPackage.name} (${currentPackage.filename})...")
             val packageUrl = URL("$OWRT_BASEURL/${currentPackage.filename}")
             val packageLocalFile = File("$TEMP_DIRECTORY/${currentPackage.filename}")
-            packageUrl.openStream().use {
-                Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
+            downloadFile(packageUrl, packageLocalFile)
         }
     }
 
@@ -132,9 +128,7 @@ fun downloadLuciPackages() {
             println("[*] Downloading package ${currentPackage.name} (${currentPackage.filename})...")
             val packageUrl = URL("$OWRT_LUCIURL/${currentPackage.filename}")
             val packageLocalFile = File("$TEMP_DIRECTORY/${currentPackage.filename}")
-            packageUrl.openStream().use {
-                Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            }
+            downloadFile(packageUrl, packageLocalFile)
         }
     }
 
@@ -145,9 +139,7 @@ fun downloadCorePackageList(): File {
     println("\n[*] Downloading core package list...")
     val packageListUrl = URL("$OWRT_COREURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
-    packageListUrl.openStream().use {
-        Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
+    downloadFile(packageListUrl, packageLocalFile)
     return packageLocalFile
 }
 
@@ -155,9 +147,7 @@ fun downloadBasePackageList(): File {
     println("\n[*] Downloading base package list...")
     val packageListUrl = URL("$OWRT_BASEURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
-    packageListUrl.openStream().use {
-        Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
+    downloadFile(packageListUrl, packageLocalFile)
     return packageLocalFile
 }
 
@@ -165,10 +155,14 @@ fun downloadLuciPackageList(): File {
     println("\n[*] Downloading LuCI package list...")
     val packageListUrl = URL("$OWRT_LUCIURL/Packages")
     val packageLocalFile = File("$TEMP_DIRECTORY/Package")
-    packageListUrl.openStream().use {
-        Files.copy(it, packageLocalFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-    }
+    downloadFile(packageListUrl, packageLocalFile)
     return packageLocalFile
+}
+
+fun downloadFile(url: URL, target: File) {
+    url.openStream().use {
+        Files.copy(it, target.toPath(), StandardCopyOption.REPLACE_EXISTING)
+    }
 }
 
 fun makeInstallScript() {
